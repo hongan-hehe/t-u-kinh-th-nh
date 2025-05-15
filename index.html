@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chuyến tàu Kinh Thánh</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f0f8ff; text-align: center; padding: 20px; }
+  h1 { color: #333; }
+  .track { margin: 20px auto; width: 90%; max-width: 600px; background: #ddd; border-radius: 10px; padding: 10px; }
+  .train { display: inline-block; width: 40px; height: 40px; border-radius: 5px; margin: 0 5px; line-height: 40px; color: white; font-weight: bold; }
+  #train1 { background: #e74c3c; }
+  #train2 { background: #3498db; }
+  .controls { margin: 20px; }
+  button { font-size: 16px; padding: 10px 15px; margin: 5px; border-radius: 5px; cursor: pointer; }
+  #message { margin: 15px; font-size: 18px; min-height: 30px; color: #555; }
+</style>
+</head>
+<body>
+<h1>Chuyến tàu Kinh Thánh</h1>
+<div class="track" id="track1"></div>
+<div class="track" id="track2"></div>
+
+<div class="controls">
+  <div>
+    <strong>Đội 1 (Đỏ)</strong><br />
+    <button onclick="moveTrain(1, 2)">Tiến lên 2 bước</button>
+    <button onclick="moveTrain(1, -2)">Lùi lại 2 bước</button>
+  </div>
+  <div style="margin-top:15px;">
+    <strong>Đội 2 (Xanh)</strong><br />
+    <button onclick="moveTrain(2, 2)">Tiến lên 2 bước</button>
+    <button onclick="moveTrain(2, -2)">Lùi lại 2 bước</button>
+  </div>
+</div>
+
+<div id="message"></div>
+
+<script>
+  const maxSteps = 15;
+  const trackLength = maxSteps + 1;
+  let positions = [0, 0];
+  let movesCount = 0;
+
+  function createTrack(trackId, trainId) {
+    const track = document.getElementById(trackId);
+    track.innerHTML = '';
+    for(let i=0; i < trackLength; i++) {
+      const block = document.createElement('div');
+      block.classList.add('train');
+      block.id = trainId + '_block_' + i;
+      block.textContent = (i === positions[trainId -1]) ? '🚂' : '';
+      track.appendChild(block);
+    }
+  }
+
+  function updateTracks() {
+    createTrack('track1', 'train1');
+    createTrack('track2', 'train2');
+  }
+
+  function moveTrain(team, step) {
+    if (movesCount >= maxSteps) {
+      showMessage('Đã hết lượt chơi!');
+      return;
+    }
+
+    let posIndex = team - 1;
+    let newPos = positions[posIndex] + step;
+
+    if (newPos < 0) newPos = 0;
+    if (newPos > maxSteps) newPos = maxSteps;
+
+    positions[posIndex] = newPos;
+    movesCount++;
+
+    updateTracks();
+
+    showMessage(`Đội ${team} di chuyển ${step > 0 ? 'tiến' : 'lùi'} ${Math.abs(step)} bước. Lượt chơi: ${movesCount}/${maxSteps}`);
+
+    if (positions[posIndex] === maxSteps) {
+      showMessage(`🎉 Đội ${team} đã về đích và chiến thắng! 🎉`);
+      disableButtons();
+    }
+  }
+
+  function showMessage(msg) {
+    document.getElementById('message').textContent = msg;
+  }
+
+  function disableButtons() {
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(btn => btn.disabled = true);
+  }
+
+  window.onload = updateTracks;
+</script>
+</body>
+</html>
